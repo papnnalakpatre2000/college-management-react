@@ -1,23 +1,21 @@
-import logo from './logo.svg';
 import './App.css';
+import AdmissionForm from './AdmissionForm';
+import StudentDetails from './StudentDetails';
+import { useState } from 'react';
 
 function App() {
+  const [view, setView] = useState('form');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App" style={{ padding: 20 }}>
+      <h1>Admission Demo</h1>
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={() => setView('form')} style={{ marginRight: 8 }}>Register Student</button>
+        <button onClick={() => setView('get')}>Get Student</button>
+      </div>
+      <div>
+        {view === 'form' ? <AdmissionForm /> : <StudentDetails />}
+      </div>
     </div>
   );
 }
