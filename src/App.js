@@ -1,21 +1,19 @@
 import './App.css';
 import AdmissionForm from './AdmissionForm';
 import StudentDetails from './StudentDetails';
-import { useState } from 'react';
+import HomePage from './HomePage';
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
-  const [view, setView] = useState('form');
-
   return (
     <div className="App" style={{ padding: 20 }}>
       <h1>Admission Demo</h1>
-      <div style={{ marginBottom: 12 }}>
-        <button onClick={() => setView('form')} style={{ marginRight: 8 }}>Register Student</button>
-        <button onClick={() => setView('get')}>Get Student</button>
-      </div>
-      <div>
-        {view === 'form' ? <AdmissionForm /> : <StudentDetails />}
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/studentregist" element={<AdmissionForm />} />
+        <Route path="/studentregist/:id" element={<AdmissionForm />} />
+        <Route path="/students" element={<StudentDetails />} />
+      </Routes>
     </div>
   );
 }

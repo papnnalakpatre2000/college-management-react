@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 export default function AdmissionForm() {
+  const { id: editId } = useParams();
   const [student, setStudent] = useState({
     name: '',
     email: '',
@@ -12,7 +14,7 @@ export default function AdmissionForm() {
     fees: '',
     result10: '',
     result12: '',
-    status: 'PENDING',
+    status: 'Register',
   });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,43 @@ export default function AdmissionForm() {
     };
   }, [file]);
 
+  // If editing, fetch existing student data
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      if (!editId) return;
+      try {
+        const res = await fetch(`http://localhost:8080/api/admission/getStudent/${encodeURIComponent(editId)}`);
+        const contentType = res.headers.get('content-type') || '';
+        let body;
+        if (contentType.includes('application/json')) body = await res.json();
+        else body = await res.text();
+        if (!res.ok) throw new Error(JSON.stringify(body));
+        // backend might wrap student in `student` property
+        const s = body.student || body;
+        if (!mounted) return;
+        setStudent({
+          name: s.name || '',
+          email: s.email || '',
+          phone: s.phone || '',
+          course: s.course || '',
+          dateOfBirth: s.dateOfBirth ? s.dateOfBirth.split('T')[0] : (s.dateOfBirth || ''),
+          address: s.address || '',
+          admissionDate: s.admissionDate ? s.admissionDate.split('T')[0] : (s.admissionDate || ''),
+          fees: s.fees || '',
+          result10: s.result10 || '',
+          result12: s.result12 || '',
+          status: s.status || 'REGISTER',
+        });
+      } catch (err) {
+        // ignore - user can still edit manually
+        setResp({ ok: false, error: err.message || String(err) });
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, [editId]);
+
   function handleChange(e) {
     const { name, value } = e.target;
     setStudent(prev => ({ ...prev, [name]: value }));
@@ -55,15 +94,29 @@ export default function AdmissionForm() {
     };
 
     try {
-      const formData = new FormData();
-      // ensure the 'student' part is sent with application/json so Spring can parse it
-      formData.append('student', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
-      if (file) formData.append('file', file);
+      let res;
+      // If editing (editId present) call PUT multipart/form-data API
+      if (editId) {
+        // follow the backend's multipart/form-data update API (same as registration)
+        const formData = new FormData();
+        formData.append('student', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+        if (file) formData.append('file', file);
 
-      const res = await fetch('http://localhost:8080/api/admission/registerStudent', {
-        method: 'POST',
-        body: formData,
-      });
+        res = await fetch(`http://localhost:8080/api/admission/updateStudent/${encodeURIComponent(editId)}`, {
+          method: 'PUT',
+          body: formData,
+        });
+      } else {
+        const formData = new FormData();
+        // ensure the 'student' part is sent with application/json so Spring can parse it
+        formData.append('student', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+        if (file) formData.append('file', file);
+
+        res = await fetch('http://localhost:8080/api/admission/registerStudent', {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       const contentType = res.headers.get('content-type') || '';
       let data;
@@ -73,10 +126,10 @@ export default function AdmissionForm() {
       if (!res.ok) throw new Error(JSON.stringify(data));
       setResp({ ok: true, data });
       // optional: clear form on success
-      setStudent({
-        name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'PENDING'
-      });
-      setFile(null);
+      if (!editId) {
+        setStudent({ name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'register' });
+        setFile(null);
+      }
     } catch (err) {
       setResp({ ok: false, error: err.message || String(err) });
     } finally {
@@ -86,7 +139,7 @@ export default function AdmissionForm() {
 
   return (
     <div className="admission-form">
-      <h2>Register Student</h2>
+      <h2>{editId ? 'Update Student' : 'Register Student'}</h2>
       <form onSubmit={handleSubmit} className="form-grid">
         <div className="form-row">
           <label className="field-label">Name</label>
@@ -131,9 +184,14 @@ export default function AdmissionForm() {
         <div className="form-row">
           <label className="field-label">Status</label>
           <select className="field-input" name="status" value={student.status} onChange={handleChange}>
-            <option>PENDING</option>
-            <option>APPROVED</option>
+            <option>REGISTER</option>
+            <option>WITHDRAW</option>
+            <option>GRADUATED</option>
+            <option>REMOVED</option>
             <option>REJECTED</option>
+            <option>REGISTERED</option>
+            <option>PENDING</option>
+
           </select>
         </div>
 
@@ -150,8 +208,8 @@ export default function AdmissionForm() {
         )}
 
         <div className="form-actions">
-          <button type="submit" className="btn" disabled={loading}>{loading ? 'Sending...' : 'Submit'}</button>
-          <button type="button" className="btn" onClick={() => { setStudent({ name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'PENDING' }); setFile(null); setResp(null); }} style={{ background: '#777' }}>Reset</button>
+          <button type="submit" className="btn" disabled={loading}>{loading ? (editId ? 'Updating...' : 'Sending...') : (editId ? 'Update' : 'Submit')}</button>
+          <button type="button" className="btn" onClick={() => { setStudent({ name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'Register' }); setFile(null); setResp(null); }} style={{ background: '#777' }}>Reset</button>
         </div>
       </form>
 
