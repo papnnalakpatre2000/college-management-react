@@ -10,11 +10,12 @@ export default function AdmissionForm() {
     course: '',
     dateOfBirth: '',
     address: '',
+    gender: 'Male',
     admissionDate: '',
     fees: '',
     result10: '',
     result12: '',
-    status: 'Register',
+    status: 'PENDING',
   });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -61,11 +62,12 @@ export default function AdmissionForm() {
           course: s.course || '',
           dateOfBirth: s.dateOfBirth ? s.dateOfBirth.split('T')[0] : (s.dateOfBirth || ''),
           address: s.address || '',
+          gender: s.gender || 'Male',
           admissionDate: s.admissionDate ? s.admissionDate.split('T')[0] : (s.admissionDate || ''),
           fees: s.fees || '',
           result10: s.result10 || '',
           result12: s.result12 || '',
-          status: s.status || 'REGISTER',
+          status: s.status || 'PENDING',
         });
       } catch (err) {
         // ignore - user can still edit manually
@@ -127,7 +129,7 @@ export default function AdmissionForm() {
       setResp({ ok: true, data });
       // optional: clear form on success
       if (!editId) {
-        setStudent({ name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'register' });
+        setStudent({ name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', gender: 'Male', admissionDate: '', fees: '', result10: '', result12: '', status: 'PENDING' });
         setFile(null);
       }
     } catch (err) {
@@ -142,20 +144,20 @@ export default function AdmissionForm() {
       <h2>{editId ? 'Update Student' : 'Register Student'}</h2>
       <form onSubmit={handleSubmit} className="form-grid">
         <div className="form-row">
-          <label className="field-label">Name</label>
-          <input className="field-input" name="name" value={student.name} onChange={handleChange} required />
+          <label className="field-label">Full Name</label>
+          <input className="field-input" name="name" placeholder="Enter your full name" value={student.name} onChange={handleChange} required />
         </div>
         <div className="form-row">
           <label className="field-label">Email</label>
-          <input className="field-input" name="email" type="email" value={student.email} onChange={handleChange} required />
+          <input className="field-input" name="email" type="email" placeholder="Enter email address" value={student.email} onChange={handleChange} required />
         </div>
         <div className="form-row">
           <label className="field-label">Phone</label>
-          <input className="field-input" name="phone" value={student.phone} onChange={handleChange} />
+          <input className="field-input" name="phone" placeholder="Enter phone number" value={student.phone} onChange={handleChange} />
         </div>
         <div className="form-row">
           <label className="field-label">Course</label>
-          <input className="field-input" name="course" value={student.course} onChange={handleChange} />
+          <input className="field-input" name="course" placeholder="Enter course name" value={student.course} onChange={handleChange} />
         </div>
         <div className="form-row">
           <label className="field-label">Date of Birth</label>
@@ -163,7 +165,15 @@ export default function AdmissionForm() {
         </div>
         <div className="form-row">
           <label className="field-label">Address</label>
-          <input className="field-input" name="address" value={student.address} onChange={handleChange} />
+          <input className="field-input" name="address" placeholder="Enter address" value={student.address} onChange={handleChange} />
+        </div>
+        <div className="form-row">
+          <label className="field-label">Gender</label>
+          <select className="field-input" name="gender" value={student.gender} onChange={handleChange}>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
         </div>
         <div className="form-row">
           <label className="field-label">Admission Date</label>
@@ -171,15 +181,15 @@ export default function AdmissionForm() {
         </div>
         <div className="form-row">
           <label className="field-label">Fees</label>
-          <input className="field-input" name="fees" type="number" value={student.fees} onChange={handleChange} />
+          <input className="field-input" name="fees" type="number" placeholder="Enter fees amount" value={student.fees} onChange={handleChange} />
         </div>
         <div className="form-row">
-          <label className="field-label">Result 10</label>
-          <input className="field-input" name="result10" type="number" value={student.result10} onChange={handleChange} />
+          <label className="field-label">10th Percentage</label>
+          <input className="field-input" name="result10" type="number" placeholder="Enter 10th result" value={student.result10} onChange={handleChange} />
         </div>
         <div className="form-row">
-          <label className="field-label">Result 12</label>
-          <input className="field-input" name="result12" type="number" value={student.result12} onChange={handleChange} />
+          <label className="field-label">12th Percentage</label>
+          <input className="field-input" name="result12" type="number" placeholder="Enter 12th result" value={student.result12} onChange={handleChange} />
         </div>
         <div className="form-row">
           <label className="field-label">Status</label>
@@ -194,9 +204,10 @@ export default function AdmissionForm() {
 
           </select>
         </div>
+        
 
         <div className="form-row">
-          <label className="field-label">File (optional)</label>
+          <label className="field-label">Upload Profile Photo</label>
           <input className="field-input" type="file" accept="image/*,application/pdf" onChange={e => setFile(e.target.files && e.target.files[0])} />
         </div>
 
