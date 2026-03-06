@@ -7,23 +7,39 @@ export default function AdmissionForm() {
     name: '',
     email: '',
     phone: '',
-    course: '',
+    course: '', // default selected course
     dateOfBirth: '',
     address: '',
-    gender: 'Male',
+    gender: '',
     admissionDate: '',
     fees: '',
     result10: '',
     result12: '',
-    status: 'PENDING',
+    status: '',
   });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [resp, setResp] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const prevPreviewRef = useRef(null);
+  const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
+        async function fetchPrograms() {
+          try {
+            const res = await fetch('http://localhost:8080/api/programs');
+            if (res.ok) {
+              const body = await res.json();
+              setPrograms(Array.isArray(body) ? body : [body]);
+            }
+          } catch (err) {
+            console.log('Failed to load programs');
+          }
+        }
+        fetchPrograms();
+      }, []);
+
+      useEffect(() => {
     if (file && file.type && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setFilePreview(url);
@@ -59,7 +75,7 @@ export default function AdmissionForm() {
           name: s.name || '',
           email: s.email || '',
           phone: s.phone || '',
-          course: s.course || '',
+          course: s.course || 'BCA',
           dateOfBirth: s.dateOfBirth ? s.dateOfBirth.split('T')[0] : (s.dateOfBirth || ''),
           address: s.address || '',
           gender: s.gender || 'Male',
@@ -155,10 +171,27 @@ export default function AdmissionForm() {
           <label className="field-label">Phone</label>
           <input className="field-input" name="phone" placeholder="Enter phone number" value={student.phone} onChange={handleChange} />
         </div>
+       
+
         <div className="form-row">
           <label className="field-label">Course</label>
-          <input className="field-input" name="course" placeholder="Enter course name" value={student.course} onChange={handleChange} />
+          <select className="field-input" name="course" value={student.course} onChange={handleChange}>
+            <option value="">-- Select Course --</option>
+            <option >BCA</option>
+            <option >BBA</option>
+            <option >MCA</option>
+            <option >MSC</option>
+            <option >BSC</option>
+            <option >BCOM</option>
+            {programs.map((prog, idx) => (
+              <option key={idx} value={prog.name || prog.courseName}>
+                {prog.name || prog.courseName}
+              </option>
+            ))}
+            
+          </select>
         </div>
+
         <div className="form-row">
           <label className="field-label">Date of Birth</label>
           <input className="field-input" name="dateOfBirth" type="date" value={student.dateOfBirth} onChange={handleChange} />
@@ -220,7 +253,7 @@ export default function AdmissionForm() {
 
         <div className="form-actions">
           <button type="submit" className="btn" disabled={loading}>{loading ? (editId ? 'Updating...' : 'Sending...') : (editId ? 'Update' : 'Submit')}</button>
-          <button type="button" className="btn" onClick={() => { setStudent({ name: '', email: '', phone: '', course: '', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'Register' }); setFile(null); setResp(null); }} style={{ background: '#777' }}>Reset</button>
+          <button type="button" className="btn" onClick={() => { setStudent({ name: '', email: '', phone: '', course: 'BCA', dateOfBirth: '', address: '', admissionDate: '', fees: '', result10: '', result12: '', status: 'Register' }); setFile(null); setResp(null); }} style={{ background: '#777' }}>Reset</button>
         </div>
       </form>
 

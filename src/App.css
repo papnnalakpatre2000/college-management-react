@@ -1,5 +1,24 @@
 .App {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.App > div:last-child {
+  flex: 1;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
 }
 
 .App-logo {
@@ -118,7 +137,7 @@
 
 .file-preview { grid-column: 1 / -1; display:flex; gap:12px; align-items:center }
 
-.form-actions { grid-column: 1 / -1; display:flex; gap:8px; margin-top: 8px }
+.form-actions { grid-column: 1 / -1; display:flex; gap:8px; margin-top: 8px; justify-content: center; }
 
 .response-success { border-left: 4px solid #2e7d32; padding: 8px; background: #f1f8ee }
 .response-error { border-left: 4px solid #c62828; padding: 8px; background: #fff2f2 }
