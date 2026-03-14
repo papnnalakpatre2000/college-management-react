@@ -1,10 +1,89 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import jsPDF from 'jspdf';
 
 export default function DepartmentPage() {
   const [activeTab, setActiveTab] = useState('about');
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const location = useLocation();
   const selectedDept = location.state?.selectedDept || 'management';
+
+  // Faculty detailed profiles
+  const facultyDetailsData = {
+    'Dr. Vijay Wagh': {
+      name: 'Dr. Vijay Wagh',
+      designation: 'Professor',
+      dept: 'Management',
+      email: 'vijay.wagh@itm.edu',
+      phone: '+91-9876543210',
+      specialization: 'Strategic Management, Business Policy',
+      qualification: 'B.Com, M.Com, Ph.D (Management)',
+      experience: '18 Years',
+      publications: '25+ International Papers',
+      bio: 'Dr. Vijay Wagh is an accomplished academic and researcher with expertise in strategic management. He has guided numerous doctoral students and actively participates in academic conferences.'
+    },
+    'Dr. M. S. Altamash': {
+      name: 'Dr. M. S. Altamash',
+      designation: 'Assistant Professor & Head',
+      dept: 'Management',
+      email: 'ms.altamash@itm.edu',
+      phone: '+91-9876543211',
+      specialization: 'Finance, Corporate Governance',
+      qualification: 'B.Com, M.Com, Ph.D (Finance)',
+      experience: '15 Years',
+      publications: '20+ International Papers',
+      bio: 'Dr. M. S. Altamash leads the Management Department with a focus on finance and corporate governance. He is a recognized expert in financial management and business ethics.'
+    },
+    'Dr. Rajesh Kumar': {
+      name: 'Dr. Rajesh Kumar',
+      designation: 'Associate Professor & Head',
+      dept: 'Computer',
+      email: 'rajesh.kumar@itm.edu',
+      phone: '+91-9876543212',
+      specialization: 'Data Science, Machine Learning',
+      qualification: 'B.Tech, M.Tech, Ph.D (Computer Science)',
+      experience: '14 Years',
+      publications: '30+ International Papers',
+      bio: 'Dr. Rajesh Kumar is a leading researcher in data science and machine learning with publications in top-tier conferences.'
+    },
+    'Dr. Arjun Singh': {
+      name: 'Dr. Arjun Singh',
+      designation: 'Professor & Head',
+      dept: 'Hospitality',
+      email: 'arjun.singh@itm.edu',
+      phone: '+91-9876543213',
+      specialization: 'Hotel Management, Tourism Development',
+      qualification: 'B.A., M.H.M, Ph.D (Tourism)',
+      experience: '20 Years',
+      publications: '18+ International Papers',
+      bio: 'Dr. Arjun Singh is an industry veteran with extensive experience in hotel management and tourism development. He maintains strong industry connections.'
+    },
+    'Dr. Priya Sharma': {
+      name: 'Dr. Priya Sharma',
+      designation: 'Assistant Professor',
+      dept: 'Computer',
+      email: 'priya.sharma@itm.edu',
+      phone: '+91-9876543214',
+      specialization: 'Web Development, Cloud Computing',
+      qualification: 'B.Tech, M.Tech, Ph.D (Computer Science)',
+      experience: '10 Years',
+      publications: '12+ International Papers',
+      bio: 'Dr. Priya Sharma specializes in web technologies and cloud computing with hands-on experience in modern development practices.'
+    },
+    'Dr. N. D. Shinde': {
+      name: 'Dr. N. D. Shinde',
+      designation: 'Assistant Professor',
+      dept: 'Management',
+      email: 'nd.shinde@itm.edu',
+      phone: '+91-9876543215',
+      specialization: 'Human Resource Management',
+      qualification: 'B.Com, M.Com, Ph.D (Management)',
+      experience: '12 Years',
+      publications: '15+ International Papers',
+      bio: 'Dr. N. D. Shinde is an expert in Human Resource Management with specialization in organizational behavior and employee relations.'
+    }
+  };
 
   const departmentsData = {
     management: {
@@ -76,6 +155,142 @@ export default function DepartmentPage() {
   };
 
   const managementData = departmentsData[selectedDept] || departmentsData.management;
+
+  // Handle faculty profile view
+  const handleViewFaculty = (facultyName) => {
+    const details = facultyDetailsData[facultyName] || {
+      name: facultyName,
+      designation: 'Faculty Member',
+      email: 'faculty@itm.edu',
+      phone: '+91-98765432XX',
+      specialization: 'Not Available',
+      qualification: 'Not Available',
+      experience: 'Not Available',
+      publications: 'Not Available',
+      bio: 'is an industry veteran with extensive experience in hotel management and tourism development. He maintains strong industry connections.'
+    };
+    setSelectedFaculty(details);
+    setShowModal(true);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedFaculty(null);
+  };
+
+  // Generate and download syllabus PDF
+  const generateSyllabusPDF = (course, year) => {
+    const doc = new jsPDF();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 20;
+
+    // Header
+    doc.setFontSize(16);
+    doc.setTextColor(25, 118, 210);
+    doc.text('ITM College', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 8;
+
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text('Course Syllabus', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 10;
+
+    // Course details
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    doc.text(`Course: ${course}`, 20, yPosition);
+    yPosition += 7;
+    doc.text(`Year: ${year}`, 20, yPosition);
+    yPosition += 7;
+    doc.text(`Department: ${managementData.name}`, 20, yPosition);
+    yPosition += 7;
+    doc.text(`Academic Year: 2025-2026`, 20, yPosition);
+    yPosition += 12;
+
+    // Course objectives
+    doc.setFontSize(11);
+    doc.setTextColor(25, 118, 210);
+    doc.text('Course Objectives:', 20, yPosition);
+    yPosition += 7;
+    
+    const objectives = [
+      '• Provide comprehensive knowledge in core subjects',
+      '• Develop practical and analytical skills',
+      '• Foster critical thinking and problem-solving abilities',
+      '• Prepare students for professional careers',
+      '• Encourage research and innovation'
+    ];
+    
+    doc.setFontSize(9);
+    doc.setTextColor(0);
+    objectives.forEach(obj => {
+      doc.text(obj, 20, yPosition);
+      yPosition += 6;
+    });
+    
+    yPosition += 5;
+
+    // Syllabus content
+    doc.setFontSize(11);
+    doc.setTextColor(25, 118, 210);
+    doc.text('Syllabus Content:', 20, yPosition);
+    yPosition += 7;
+
+    const syllabusContent = [
+      'Unit 1: Fundamentals and Core Concepts',
+      'Unit 2: Advanced Topics and Applications',
+      'Unit 3: Case Studies and Real-world Scenarios',
+      'Unit 4: Project Work and Field Studies',
+      'Unit 5: Assessment and Evaluation Methods'
+    ];
+
+    doc.setFontSize(9);
+    doc.setTextColor(0);
+    syllabusContent.forEach((item, idx) => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`${idx + 1}. ${item}`, 25, yPosition);
+      yPosition += 6;
+    });
+
+    yPosition += 10;
+
+    // Learning outcomes
+    doc.setFontSize(11);
+    doc.setTextColor(25, 118, 210);
+    doc.text('Learning Outcomes:', 20, yPosition);
+    yPosition += 7;
+
+    const outcomes = [
+      '• Students will gain in-depth knowledge of subject matter',
+      '• Ability to apply concepts in practical scenarios',
+      '• Enhanced communication and presentation skills',
+      '• Development of leadership qualities',
+      '• Industry-ready competencies'
+    ];
+
+    doc.setFontSize(9);
+    doc.setTextColor(0);
+    outcomes.forEach(outcome => {
+      if (yPosition > pageHeight - 20) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(outcome, 25, yPosition);
+      yPosition += 6;
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+    doc.save(`${course}_${year}_Syllabus.pdf`);
+  };
 
   return (
     <div style={{ padding: 20, maxWidth: 1000, margin: '0 auto' }}>
@@ -204,7 +419,21 @@ export default function DepartmentPage() {
                   <td style={{ border: '1px solid #ddd', padding: 12 }}>{faculty.name}</td>
                   <td style={{ border: '1px solid #ddd', padding: 12 }}>{faculty.designation}</td>
                   <td style={{ border: '1px solid #ddd', padding: 12 }}>
-                    <a href="#" style={{ color: '#1976d2', textDecoration: 'none', cursor: 'pointer' }}>{faculty.profile}</a>
+                    <button 
+                      onClick={() => handleViewFaculty(faculty.name)}
+                      style={{ 
+                        color: '#1976d2', 
+                        textDecoration: 'none', 
+                        cursor: 'pointer',
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        padding: 0
+                      }}
+                    >
+                      {faculty.profile}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -242,13 +471,57 @@ export default function DepartmentPage() {
                   <td style={{ border: '1px solid #ddd', padding: 12, textAlign: 'center' }}>{prog.duration}</td>
                   <td style={{ border: '1px solid #ddd', padding: 12, textAlign: 'center' }}>{prog.intake}</td>
                   <td style={{ border: '1px solid #ddd', padding: 12, textAlign: 'center' }}>
-                    <a href="#" style={{ color: '#1976d2', textDecoration: 'none', cursor: 'pointer' }}>{prog.syllabus.iYear}</a>
+                    <button 
+                      onClick={() => generateSyllabusPDF(prog.course, 'I Year')}
+                      style={{ 
+                        color: '#1976d2', 
+                        textDecoration: 'none', 
+                        cursor: 'pointer',
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        padding: 0
+                      }}
+                    >
+                      {prog.syllabus.iYear}
+                    </button>
                   </td>
                   <td style={{ border: '1px solid #ddd', padding: 12, textAlign: 'center' }}>
-                    <a href="#" style={{ color: '#1976d2', textDecoration: 'none', cursor: 'pointer' }}>{prog.syllabus.iiYear}</a>
+                    <button 
+                      onClick={() => generateSyllabusPDF(prog.course, 'II Year')}
+                      style={{ 
+                        color: '#1976d2', 
+                        textDecoration: 'none', 
+                        cursor: 'pointer',
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        padding: 0
+                      }}
+                    >
+                      {prog.syllabus.iiYear}
+                    </button>
                   </td>
                   <td style={{ border: '1px solid #ddd', padding: 12, textAlign: 'center' }}>
-                    {prog.syllabus.iiiYear === '--' ? '--' : <a href="#" style={{ color: '#1976d2', textDecoration: 'none', cursor: 'pointer' }}>{prog.syllabus.iiiYear}</a>}
+                    {prog.syllabus.iiiYear === '--' ? '--' : 
+                      <button 
+                        onClick={() => generateSyllabusPDF(prog.course, 'III Year')}
+                        style={{ 
+                          color: '#1976d2', 
+                          textDecoration: 'none', 
+                          cursor: 'pointer',
+                          background: 'none',
+                          border: 'none',
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          padding: 0
+                        }}
+                      >
+                        {prog.syllabus.iiiYear}
+                      </button>
+                    }
                   </td>
                 </tr>
               ))}
@@ -256,6 +529,118 @@ export default function DepartmentPage() {
           </table>
         </div>
       )}
+
+      {/* Faculty Modal */}
+      {showModal && selectedFaculty && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: 20
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: 12,
+          padding: 30,
+          maxWidth: 600,
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h2 style={{ margin: 0, color: '#1976d2', fontSize: 24 }}>Faculty Profile</h2>
+            <button 
+              onClick={closeModal}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: 24,
+                cursor: 'pointer',
+                color: '#999'
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={{ borderTop: '2px solid #FFA500', paddingTop: 20 }}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Name</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.name}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Designation</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.designation}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Department</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.dept}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Specialization</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.specialization}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Qualification</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.qualification}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Experience</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.experience}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Publications</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.publications}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Email</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#1976d2' }}>{selectedFaculty.email}</p>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase' }}>Phone</label>
+              <p style={{ margin: '4px 0', fontSize: 16, color: '#333' }}>{selectedFaculty.phone}</p>
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontWeight: 'bold', color: '#666', fontSize: 12, textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Bio</label>
+              <p style={{ margin: 0, fontSize: 14, color: '#555', lineHeight: 1.6 }}>{selectedFaculty.bio}</p>
+            </div>
+
+            <button 
+              onClick={closeModal}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 16,
+                fontWeight: 'bold'
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
